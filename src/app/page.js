@@ -1,69 +1,48 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client";
+import { Box, Container, Typography, Button } from "@mui/material";
+import PropertyListingSection from "@/components/properties/PropertyListingSection";
 
-export default function Home() {
+export default function HomePage() {
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>
-            To get started, edit the{" "}
-            <code className={styles.code}>page.js</code> file.
-          </h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <>
+      <Box
+        sx={{
+          bgcolor: "#F6F4EF",
+          py: { xs: 8, md: 12 },
+        }}
+      >
+        <Container maxWidth="xl">
+          <Typography
+            variant="overline"
+            color="secondary.main"
+            letterSpacing={3}
           >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            A CONSIDERED COLLECTION OF EXCEPTIONAL HOMES
+          </Typography>
+
+          <Typography
+            variant="h1"
+            sx={{
+              fontSize: { xs: "2.8rem", md: "5rem" },
+              maxWidth: 850,
+              my: 3,
+            }}
           >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+            Find a place to call extraordinary.
+          </Typography>
+
+          <Typography sx={{ maxWidth: 600, mb: 4, color: "text.secondary" }}>
+            Discover distinctive residences, architectural retreats and
+            private estates selected for the way they make you feel.
+          </Typography>
+
+          <Button variant="contained" href="#properties">
+            Explore properties
+          </Button>
+        </Container>
+      </Box>
+
+      <PropertyListingSection />
+    </>
   );
 }
