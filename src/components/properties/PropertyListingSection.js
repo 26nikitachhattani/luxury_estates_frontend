@@ -1,10 +1,11 @@
+
 "use client";
 
-import { useMemo, useState } from "react";
-import { Box, Container, Typography } from "@mui/material";
+import { useEffect, useMemo, useState } from "react";
+import { Alert, Box, Container, Typography } from "@mui/material";
 import PropertyFilters from "./PropertyFilters";
 import PropertyGrid from "./PropertyGrid";
-import properties from "@/data/properties";
+import { getProperties } from "@/lib/api/propertyApi";
 
 export default function PropertyListingSection() {
   const [filters, setFilters] = useState({
@@ -14,17 +15,50 @@ export default function PropertyListingSection() {
     sort: "featured",
   });
 
-  const locations = [...new Set(
-    properties.map((property) => property.location.split(", ").at(-1))
-  )];
+  const [properties, setProperties] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
+  // Fetch properties from Django when the component mounts.
+  useEffect(() => {
+    getProperties()
+      .then((data) => {
+        const results = Array.isArray(data)
+          ? data
+          : data?.results || [];
+
+        setProperties(results);
+      })
+      .catch((error) => {
+        setError(
+          error.apiMessage || "Failed to load properties."
+        );
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
+
+  // Generate filter locations from the fetched properties.
+  const locations = useMemo(
+    () => [
+      ...new Set(
+        properties
+          .map((property) => property.location)
+          .filter(Boolean)
+      ),
+    ],
+    [properties]
+  );
+
+  // Filter and sort the fetched properties.
   const filteredProperties = useMemo(() => {
-    let result = properties.filter((property) => {
-      const search = filters.search.toLowerCase();
+    const search = filters.search.trim().toLowerCase();
 
+    const result = properties.filter((property) => {
       const matchesSearch =
-        property.name.toLowerCase().includes(search) ||
-        property.location.toLowerCase().includes(search);
+        (property.name || "").toLowerCase().includes(search) ||
+        (property.location || "").toLowerCase().includes(search);
 
       const matchesBedrooms =
         !filters.bedrooms ||
@@ -32,21 +66,31 @@ export default function PropertyListingSection() {
 
       const matchesLocation =
         !filters.location ||
-        property.location.includes(filters.location);
+        property.location === filters.location;
 
-      return matchesSearch && matchesBedrooms && matchesLocation;
+      return (
+        matchesSearch &&
+        matchesBedrooms &&
+        matchesLocation
+      );
     });
 
     if (filters.sort === "price-low") {
-      result.sort((a, b) => a.price - b.price);
+      result.sort(
+        (a, b) => Number(a.price) - Number(b.price)
+      );
     } else if (filters.sort === "price-high") {
-      result.sort((a, b) => b.price - a.price);
+      result.sort(
+        (a, b) => Number(b.price) - Number(a.price)
+      );
     } else if (filters.sort === "area") {
-      result.sort((a, b) => b.area - a.area);
+      result.sort(
+        (a, b) => Number(b.size_sqft) - Number(a.size_sqft)
+      );
     }
 
     return result;
-  }, [filters]);
+  }, [properties, filters]);
 
   return (
     <Container id="properties" maxWidth="xl" sx={{ py: 6 }}>
@@ -58,6 +102,7 @@ export default function PropertyListingSection() {
         >
           THE COLLECTION
         </Typography>
+
         <Typography variant="h3" sx={{ mb: 3 }}>
           Exceptional Properties
         </Typography>
@@ -68,7 +113,21 @@ export default function PropertyListingSection() {
         />
       </Box>
 
-      <PropertyGrid properties={filteredProperties} />
+      {error && (
+        <Alert severity="error" sx={{ mb: 3 }}>
+          {error}
+        </Alert>
+      )}
+
+      {loading ? (
+        <Typography>Loading properties...</Typography>
+      ) : !error && filteredProperties.length === 0 ? (
+        <Typography>
+          No properties match your filters.
+        </Typography>
+      ) : (
+        <PropertyGrid properties={filteredProperties} />
+      )}
     </Container>
   );
 }
