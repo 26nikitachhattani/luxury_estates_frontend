@@ -1,36 +1,149 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Luxury Estates — Frontend
+
+A responsive luxury real estate web application built with Next.js. It allows users to explore property listings, view property details, and submit inquiries. The admin interface provides property management features and an inquiry dashboard.
+
+## Features
+
+### Property Listings
+- Display luxury properties in a responsive grid.
+- Show property name, location, price, area, bedrooms, description, and images.
+- View individual property details.
+- Filter and sort property listings.
+
+### Admin Dashboard
+- Add new property listings.
+- Edit existing property details.
+- Delete property listings.
+- Upload property images.
+- Validate required fields and property prices.
+
+### Inquiry Management
+- Submit inquiries from property detail pages.
+- Capture buyer name, email, phone number, and message.
+- Display submitted inquiries in an admin table.
+- Refresh inquiries to fetch the latest records.
+
+## Tech Stack
+
+- **Framework:** Next.js (App Router)
+- **UI Library:** React
+- **Language:** JavaScript
+- **Component Library:** Material UI (MUI)
+- **HTTP Client:** Axios
+- **Styling:** Material UI styling system
+- **API Integration:** REST API
+
+## Project Structure
+
+```text
+luxury_estates_frontend/
+├── public/
+├── src/
+│   ├── app/
+│   │   ├── admin/
+│   │   ├── properties/
+│   │   │   └── [id]/
+│   │   ├── layout.jsx
+│   │   └── page.jsx
+│   ├── components/
+│   │   └── admin/
+│   │       └── InquiriesTable.jsx
+│   └── lib/
+│       └── api/
+│           ├── axios.js
+│           ├── propertyApi.js
+│           └── inquiryApi.js
+├── .env.local
+├── package.json
+└── README.md
+```
+
+*The structure above is illustrative. Adjust it to match your actual project files.*
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js and npm
+- A running backend API
+
+### 1. Clone the repository
+
+```bash
+git clone <your-repository-url>
+cd luxury_estates_frontend
+```
+
+### 2. Install dependencies
+
+```bash
+npm install
+```
+
+### 3. Configure environment variables
+
+Create a `.env.local` file in the project root:
+
+```env
+NEXT_PUBLIC_API_URL=http://127.0.0.1:8000/api
+```
+
+Update the URL if your backend runs at a different address.
+
+### 4. Start the development server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+### 5. Build for production
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+npm run start
+```
 
-## Learn More
+## API Integration
 
-To learn more about Next.js, take a look at the following resources:
+The frontend uses Axios to communicate with the backend REST API.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| API function | Purpose |
+|---|---|
+| `getProperties()` | Fetch property listings |
+| `getPropertyById(id)` | Fetch a property's details |
+| `createProperty(data)` | Create a property |
+| `updateProperty(id, data)` | Update a property |
+| `deleteProperty(id)` | Delete a property |
+| `submitInquiry(propertyId, data)` | Submit an inquiry |
+| `getInquiries()` | Fetch inquiries for the admin dashboard |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The API functions are organized under `src/lib/api/`.
 
-## Deploy on Vercel
+## Environment Configuration
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The `NEXT_PUBLIC_API_URL` variable defines the base URL used by the frontend API client.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Ensure the backend is running and configured to accept requests from the frontend's origin. Admin-only operations also require the appropriate backend authentication and permissions.
+
+## Available Scripts
+
+| Command | Description |
+|---|---|
+| `npm run dev` | Start the development server |
+| `npm run build` | Create a production build |
+| `npm run start` | Run the production build |
+| `npm run lint` | Run linting if configured in `package.json` |
+
+## Future Enhancements
+
+- Add admin authentication and session management.
+- Add pagination and search to the inquiries table.
+- Add inquiry status management.
+- Improve loading, empty, and error states.
+- Add responsive image galleries and advanced property filters.
+
+## License
+
+Developed as part of a property showcase and inquiry management application assignment.
