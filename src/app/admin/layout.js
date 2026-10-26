@@ -1,15 +1,22 @@
-
+"use client";
+import { Box } from "@mui/material";
 import AdminSidebar from "@/components/layout/AdminSidebar";
 import AdminHeader from "@/components/layout/AdminHeader";
-import Box from "@mui/material/Box";
 
 export default function AdminLayout({ children }) {
   return (
-    <Box sx={{ display: "flex", minHeight: "100vh" }}>
+    <Box
+      sx={{
+        display: "flex",
+        minHeight: "100vh",
+        bgcolor: "#F6F4EF",
+      }}
+    >
       <AdminSidebar />
 
       <Box sx={{ flex: 1, minWidth: 0 }}>
         <AdminHeader />
+
         <Box component="main" sx={{ p: { xs: 2, md: 4 } }}>
           {children}
         </Box>
