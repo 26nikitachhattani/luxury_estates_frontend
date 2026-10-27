@@ -70,7 +70,7 @@ luxury_estates_frontend/
 ### 1. Clone the repository
 
 ```bash
-git clone <your-repository-url>
+git clone https://github.com/26nikitachhattani/luxury_estates_frontend
 cd luxury_estates_frontend
 ```
 
