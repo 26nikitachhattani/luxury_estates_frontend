@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -31,7 +32,7 @@ export default function PropertyListingSection() {
       .then((data) => {
         const results = Array.isArray(data)
           ? data
-          : data?.results || [];
+          : data?.results || data?.data || [];
 
         setProperties(results);
       })
@@ -57,7 +58,9 @@ export default function PropertyListingSection() {
   );
 
   const filteredProperties = useMemo(() => {
-    const search = filters.search.trim().toLowerCase();
+    const search = String(filters.search || "")
+      .trim()
+      .toLowerCase();
 
     let result = properties.filter((property) => {
       const name = String(property.name || "").toLowerCase();
@@ -69,18 +72,18 @@ export default function PropertyListingSection() {
         name.includes(search) ||
         location.includes(search);
 
-      const bedroomCount = Number(property.bedrooms);
+      const bedroomCount = Number(
+        property.bedrooms ?? property.beds
+      );
 
       const matchesBedrooms =
         filters.bedrooms === "" ||
-        (
-          Number.isFinite(bedroomCount) &&
-          bedroomCount >= Number(filters.bedrooms)
-        );
+        (Number.isFinite(bedroomCount) &&
+          bedroomCount >= Number(filters.bedrooms));
 
       const matchesLocation =
         filters.location === "" ||
-        property.location === filters.location;
+        location === String(filters.location).toLowerCase();
 
       return (
         matchesSearch &&
@@ -89,19 +92,26 @@ export default function PropertyListingSection() {
       );
     });
 
-    // Sort a copy of the filtered array.
-    if (filters.sort === "price-low") {
+    // Support the sort values used by PropertyFilters.
+    if (
+      filters.sort === "low" ||
+      filters.sort === "price-low"
+    ) {
       result = [...result].sort(
-        (a, b) => Number(a.price) - Number(b.price)
+        (a, b) => Number(a.price || 0) - Number(b.price || 0)
       );
-    } else if (filters.sort === "price-high") {
+    } else if (
+      filters.sort === "high" ||
+      filters.sort === "price-high"
+    ) {
       result = [...result].sort(
-        (a, b) => Number(b.price) - Number(a.price)
+        (a, b) => Number(b.price || 0) - Number(a.price || 0)
       );
     } else if (filters.sort === "area") {
       result = [...result].sort(
         (a, b) =>
-          Number(b.size_sqft) - Number(a.size_sqft)
+          Number(b.size_sqft ?? b.area ?? b.sqft ?? 0) -
+          Number(a.size_sqft ?? a.area ?? a.sqft ?? 0)
       );
     }
 

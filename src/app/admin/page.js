@@ -355,7 +355,7 @@ export default function AdminPage() {
 
             <Box component="form" onSubmit={handleSubmit}>
               <Grid container spacing={2.5}>
-                <Grid item size={{ xs:12, md:6}}>
+                <Grid size={{ xs:12, md:6}}>
                   <TextField
                     fullWidth
                     required

@@ -13,7 +13,7 @@ export default function AdminLayout({ children }) {
         bgcolor: "#F6F4EF",
       }}
     >
-         <Suspense fallback={<PropertyLoading />}>
+        <Suspense fallback={<div>Loading...</div>}>
       <AdminSidebar />
       </Suspense>
 
