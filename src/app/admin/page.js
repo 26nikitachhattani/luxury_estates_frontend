@@ -355,7 +355,7 @@ export default function AdminPage() {
 
             <Box component="form" onSubmit={handleSubmit}>
               <Grid container spacing={2.5}>
-                <Grid item xs={12} md={6}>
+                <Grid item size={{ xs:12, md:6}}>
                   <TextField
                     fullWidth
                     required
@@ -366,7 +366,7 @@ export default function AdminPage() {
                   />
                 </Grid>
 
-                <Grid item xs={12} md={6}>
+                <Grid item size={{ xs:12, md:6}}>
                   <TextField
                     fullWidth
                     required
@@ -377,7 +377,7 @@ export default function AdminPage() {
                   />
                 </Grid>
 
-                <Grid item xs={12} md={4}>
+                <Grid item size={{ xs:12, md:6}}>
                   <TextField
                     fullWidth
                     required
@@ -390,7 +390,7 @@ export default function AdminPage() {
                   />
                 </Grid>
 
-                <Grid item xs={12} md={4}>
+                <Grid item size={{ xs:12, md:6}}>
                   <TextField
                     fullWidth
                     required
@@ -403,7 +403,7 @@ export default function AdminPage() {
                   />
                 </Grid>
 
-                <Grid item xs={12} md={4}>
+                <Grid item size={{ xs:12, md:6}}>
                   <TextField
                     fullWidth
                     required
@@ -416,7 +416,7 @@ export default function AdminPage() {
                   />
                 </Grid>
 
-                <Grid item xs={12}>
+                <Grid item size={{ xs:12}}>
                   <TextField
                     fullWidth
                     required
@@ -430,7 +430,7 @@ export default function AdminPage() {
                 </Grid>
 
                 {/* Image file input */}
-                <Grid item xs={12}>
+                <Grid item size={{ xs:12}}>
                   <Typography fontWeight={600} sx={{ mb: 1 }}>
                     Property Image
                   </Typography>
@@ -508,7 +508,7 @@ export default function AdminPage() {
                   )}
                 </Grid>
 
-                <Grid item xs={12}>
+                <Grid item size={{ xs:12}}>
                   <Divider sx={{ my: 1 }} />
 
                   <Stack direction="row" spacing={2}>

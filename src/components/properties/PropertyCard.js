@@ -1,4 +1,4 @@
-
+"use client";
 import Link from "next/link";
 import {
   Box,
@@ -29,6 +29,7 @@ export default function PropertyCard({ property }) {
     location,
     price,
     area,
+    size_sqft,
     bedrooms,
     beds,
     image,
@@ -95,7 +96,7 @@ export default function PropertyCard({ property }) {
           }}
         >
           <Typography variant="caption">
-            {Number(area || 0).toLocaleString("en-IN")} sq ft
+            {Number(size_sqft || 0).toLocaleString("en-IN")} sq ft
           </Typography>
 
           <Typography variant="caption">

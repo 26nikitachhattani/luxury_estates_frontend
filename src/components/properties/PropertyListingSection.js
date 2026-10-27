@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -19,7 +18,14 @@ export default function PropertyListingSection() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Fetch properties from Django when the component mounts.
+  // Merge filter changes without resetting other filters.
+  const handleFilter = (updates) => {
+    setFilters((previous) => ({
+      ...previous,
+      ...updates,
+    }));
+  };
+
   useEffect(() => {
     getProperties()
       .then((data) => {
@@ -29,9 +35,9 @@ export default function PropertyListingSection() {
 
         setProperties(results);
       })
-      .catch((error) => {
+      .catch((err) => {
         setError(
-          error.apiMessage || "Failed to load properties."
+          err.apiMessage || "Failed to load properties."
         );
       })
       .finally(() => {
@@ -39,7 +45,6 @@ export default function PropertyListingSection() {
       });
   }, []);
 
-  // Generate filter locations from the fetched properties.
   const locations = useMemo(
     () => [
       ...new Set(
@@ -51,21 +56,30 @@ export default function PropertyListingSection() {
     [properties]
   );
 
-  // Filter and sort the fetched properties.
   const filteredProperties = useMemo(() => {
     const search = filters.search.trim().toLowerCase();
 
-    const result = properties.filter((property) => {
+    let result = properties.filter((property) => {
+      const name = String(property.name || "").toLowerCase();
+      const location = String(
+        property.location || ""
+      ).toLowerCase();
+
       const matchesSearch =
-        (property.name || "").toLowerCase().includes(search) ||
-        (property.location || "").toLowerCase().includes(search);
+        name.includes(search) ||
+        location.includes(search);
+
+      const bedroomCount = Number(property.bedrooms);
 
       const matchesBedrooms =
-        !filters.bedrooms ||
-        property.bedrooms >= Number(filters.bedrooms);
+        filters.bedrooms === "" ||
+        (
+          Number.isFinite(bedroomCount) &&
+          bedroomCount >= Number(filters.bedrooms)
+        );
 
       const matchesLocation =
-        !filters.location ||
+        filters.location === "" ||
         property.location === filters.location;
 
       return (
@@ -75,17 +89,19 @@ export default function PropertyListingSection() {
       );
     });
 
+    // Sort a copy of the filtered array.
     if (filters.sort === "price-low") {
-      result.sort(
+      result = [...result].sort(
         (a, b) => Number(a.price) - Number(b.price)
       );
     } else if (filters.sort === "price-high") {
-      result.sort(
+      result = [...result].sort(
         (a, b) => Number(b.price) - Number(a.price)
       );
     } else if (filters.sort === "area") {
-      result.sort(
-        (a, b) => Number(b.size_sqft) - Number(a.size_sqft)
+      result = [...result].sort(
+        (a, b) =>
+          Number(b.size_sqft) - Number(a.size_sqft)
       );
     }
 
@@ -109,7 +125,8 @@ export default function PropertyListingSection() {
 
         <PropertyFilters
           locations={locations}
-          onFilter={setFilters}
+          filters={filters}
+          onFilter={handleFilter}
         />
       </Box>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, use, useState } from "react";
 import { useParams, notFound } from "next/navigation";
 import Link from "next/link";
 
@@ -47,44 +47,82 @@ function getImageUrl(property) {
   return `${API_ORIGIN}${image.startsWith("/") ? "" : "/"}${image}`;
 }
 
+// Cache promises by id so re-renders reuse the same promise (required by `use`).
+// The promise always resolves (never rejects), so no error boundary is needed.
+const propertyCache = new Map();
+
+function loadProperty(id) {
+  if (!propertyCache.has(id)) {
+    propertyCache.set(
+      id,
+      getPropertyById(id)
+        .then((property) => ({ property }))
+        .catch((err) => ({
+          notFound: err.response?.status === 404,
+          error: err.apiMessage || "Failed to load property details.",
+        }))
+    );
+  }
+
+  return propertyCache.get(id);
+}
+
+function PropertyLoading() {
+  return (
+    <Container sx={{ py: 6 }}>
+      <Stack
+        
+        spacing={{ xs: 1, sm: 2, md: 4 }}
+      >
+        <CircularProgress size={24} />
+        <Typography>Loading property details...</Typography>
+      </Stack>
+    </Container>
+  );
+}
+
+// Page: only sets up the Suspense boundary
 export default function PropertyDetailsPage() {
   const params = useParams();
   const id = params?.id;
 
-  const [property, setProperty] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [notFoundProperty, setNotFoundProperty] = useState(false);
+  if (!id) return null;
+
+  return (
+    <Suspense fallback={<PropertyLoading />}>
+      <PropertyDetails id={id} />
+    </Suspense>
+  );
+}
+
+// Content: suspends until the property is loaded
+function PropertyDetails({ id }) {
+  const result = use(loadProperty(id));
 
   const [inquiryForm, setInquiryForm] = useState(initialInquiryForm);
   const [submitting, setSubmitting] = useState(false);
   const [inquiryError, setInquiryError] = useState("");
   const [inquirySuccess, setInquirySuccess] = useState("");
 
-  useEffect(() => {
-    if (!id) return;
+  if (result.notFound) {
+    notFound();
+  }
 
-    setLoading(true);
-    setError("");
-    setNotFoundProperty(false);
+  if (result.error) {
+    return (
+      <Container sx={{ py: 6 }}>
+        <Alert severity="error">{result.error}</Alert>
 
-    getPropertyById(id)
-      .then((data) => {
-        setProperty(data);
-      })
-      .catch((err) => {
-        if (err.response?.status === 404) {
-          setNotFoundProperty(true);
-        } else {
-          setError(
-            err.apiMessage || "Failed to load property details."
-          );
-        }
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, [id]);
+        <Button component={Link} href="/#properties" sx={{ mt: 2 }}>
+          Back to properties
+        </Button>
+      </Container>
+    );
+  }
+
+  const property = result.property;
+
+  if (!property) return null;
 
   function handleInquiryChange(event) {
     const { name, value } = event.target;
@@ -142,39 +180,6 @@ export default function PropertyDetailsPage() {
       });
   }
 
-  if (loading) {
-    return (
-      <Container sx={{ py: 6 }}>
-        <Stack direction="row" spacing={2} alignItems="center">
-          <CircularProgress size={24} />
-          <Typography>Loading property details...</Typography>
-        </Stack>
-      </Container>
-    );
-  }
-
-  if (notFoundProperty) {
-    notFound();
-  }
-
-  if (error) {
-    return (
-      <Container sx={{ py: 6 }}>
-        <Alert severity="error">{error}</Alert>
-
-        <Button
-          component={Link}
-          href="/#properties"
-          sx={{ mt: 2 }}
-        >
-          Back to properties
-        </Button>
-      </Container>
-    );
-  }
-
-  if (!property) return null;
-
   const price = Number(property.price);
   const area = property.size_sqft;
 
@@ -188,11 +193,7 @@ export default function PropertyDetailsPage() {
 
   return (
     <Container maxWidth="lg" sx={{ py: 6 }}>
-      <Button
-        component={Link}
-        href="/#properties"
-        sx={{ mb: 3 }}
-      >
+      <Button component={Link} href="/#properties" sx={{ mb: 3 }}>
         ← Back to properties
       </Button>
 
@@ -214,8 +215,8 @@ export default function PropertyDetailsPage() {
 
       <Grid container spacing={5} sx={{ mt: 1 }}>
         {/* Property information */}
-        <Grid item xs={12} md={7}>
-          <Stack spacing={2} sx={{ py: 2 }}>
+        <Grid  size={{xs:12,md:7}}>
+          <Stack spacing={{ xs: 1, sm: 2, md: 4 }} sx={{ py: 2 }}>
             <Typography variant="overline" color="secondary.main">
               {property.location}
             </Typography>
@@ -236,14 +237,16 @@ export default function PropertyDetailsPage() {
 
             <Divider />
 
-            <Stack direction="row" spacing={4} flexWrap="wrap">
+            <Stack
+              
+              spacing={{ xs: 1, sm: 2, md: 4 }}
+              sx={{ flexWrap: "wrap" }}
+            >
               <Typography>
                 {Number(area).toLocaleString("en-IN")} sq ft
               </Typography>
 
-              <Typography>
-                {property.bedrooms} bedrooms
-              </Typography>
+              <Typography>{property.bedrooms} bedrooms</Typography>
             </Stack>
 
             <Typography
@@ -256,7 +259,7 @@ export default function PropertyDetailsPage() {
         </Grid>
 
         {/* Inquiry form */}
-        <Grid item xs={12} md={5}>
+        <Grid  size={{xs:12,md:5}}>
           <Paper
             elevation={0}
             sx={{
@@ -270,11 +273,7 @@ export default function PropertyDetailsPage() {
               Interested in this property?
             </Typography>
 
-            <Typography
-              color="text.secondary"
-              variant="body2"
-              sx={{ mb: 3 }}
-            >
+            <Typography color="text.secondary" variant="body2" sx={{ mb: 3 }}>
               Share your details and our team will get in touch with you.
             </Typography>
 
@@ -291,7 +290,10 @@ export default function PropertyDetailsPage() {
             )}
 
             <Box component="form" onSubmit={handleInquirySubmit}>
-              <Stack spacing={2}>
+              <Stack
+                
+                spacing={{ xs: 1, sm: 2, md: 4 }}
+              >
                 <TextField
                   fullWidth
                   required

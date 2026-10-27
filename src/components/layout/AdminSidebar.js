@@ -25,6 +25,13 @@ export default function AdminSidebar() {
       >
         Dashboard
       </Button>
+      <Button
+        component={Link}
+        href="/admin/inquiries"
+        sx={{ color: "#fff", display: "block", mb: 1 }}
+      >
+        Inquiries
+      </Button>
 
       <Button
         component={Link}
